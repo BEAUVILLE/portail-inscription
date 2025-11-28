@@ -318,20 +318,21 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // Configuration Firebase DIGIYLYFE
+        // 👉 Configuration Firebase DIGIYLYFE ECOSYSTEM (même projet que le HUB / CORE)
         const firebaseConfig = {
-            apiKey: "AIzaSyAzXJHI_XVzbXa5B-Ik_KSVEBKfUxC0j8M",
-            authDomain: "digiylyfe.firebaseapp.com",
-            projectId: "digiylyfe",
-            storageBucket: "digiylyfe.firebasestorage.app",
-            messagingSenderId: "226277368687",
-            appId: "1:226277368687:web:39b663cde9c8d9f1db53bc",
-            measurementId: "G-C7HLGTL2VD"
+            apiKey: "AIzaSyBqEQWoE2iC7_rp-u4riilNVHolcP2o0B0",
+            authDomain: "digiylyfe-ecosystem.firebaseapp.com",
+            databaseURL: "https://digiylyfe-ecosystem-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "digiylyfe-ecosystem",
+            storageBucket: "digiylyfe-ecosystem.firebasestorage.app",
+            messagingSenderId: "1007962643384",
+            appId: "1:1007962643384:web:20d26881e87f0dc37d0d" // mets ici exactement celui de ta console si besoin
         };
 
-        let auth, db;
+        let auth, db, rtdb;
 
         // Initialiser Firebase au chargement
         window.addEventListener('load', function() {
@@ -346,6 +347,7 @@
                 firebase.initializeApp(firebaseConfig);
                 auth = firebase.auth();
                 db = firebase.firestore();
+                rtdb = firebase.database();
 
                 statusDiv.textContent = '✅ Prêt à créer votre compte !';
                 statusDiv.className = 'firebase-status connected';
@@ -403,12 +405,15 @@
             try {
                 console.log('🚀 Création compte pour:', email);
 
-                // 1. Créer le compte Auth
+                // 1. Créer le compte Auth (projet digiylyfe-ecosystem)
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const uid = userCredential.user.uid;
                 console.log('✅ Auth créé:', uid);
 
-                // 2. Créer le document Firestore
+                const now = firebase.firestore.FieldValue.serverTimestamp();
+                const nowTs = Date.now();
+
+                // 2. Créer le document Firestore /users
                 await db.collection('users').doc(uid).set({
                     uid: uid,
                     nom: nom,
@@ -416,31 +421,49 @@
                     telephone: telephone,
                     pays: pays,
                     ville: ville,
-                    dateInscription: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                    dateInscription: now,
+                    lastLogin: now,
                     status: 'active',
                     emailVerified: false,
                     activeProfiles: ['client'],
                     profilesData: {
                         client: {
                             status: 'active',
-                            dateActivation: firebase.firestore.FieldValue.serverTimestamp()
+                            dateActivation: now
                         }
-                    }
+                    },
+                    source: 'portail-inscription'
                 });
-                console.log('✅ Document Firestore créé');
+                console.log('✅ Document Firestore users créé');
 
-                // 3. Email de vérification
-                await userCredential.user.sendEmailVerification();
-                console.log('✅ Email envoyé');
-
-                // 4. Document client
+                // 3. Créer le document client Firestore
                 await db.collection('clients').doc(uid).set({
                     userId: uid,
                     status: 'active',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    createdAt: now,
+                    lastActivity: now,
+                    source: 'portail-inscription'
                 });
-                console.log('✅ Profil client créé');
+                console.log('✅ Document Firestore clients créé');
+
+                // 4. Miroir dans la Realtime Database pour DIGIY CORE
+                await rtdb.ref('core/users/' + uid).set({
+                    uid: uid,
+                    nom: nom,
+                    email: email,
+                    telephone: telephone,
+                    pays: pays,
+                    ville: ville,
+                    status: 'active',
+                    roles: ['client'],
+                    createdAt: nowTs,
+                    source: 'portail-inscription'
+                });
+                console.log('✅ Miroir RTDB core/users créé');
+
+                // 5. Email de vérification
+                await userCredential.user.sendEmailVerification();
+                console.log('✅ Email de vérification envoyé');
 
                 // Succès !
                 statusDiv.className = 'status success show';
@@ -452,8 +475,10 @@
                 submitBtn.textContent = '✅ Compte créé avec succès !';
                 submitBtn.style.background = '#10b981';
 
-                // Redirection après 3 secondes
+                // Redirection après 3 secondes (adapter vers ton HUB si tu veux)
                 setTimeout(() => {
+                    // Exemple : rediriger vers ton DIGIY HUB
+                    // window.location.href = "https://beauville.github.io/TON-HUB-ICI/";
                     window.location.href = 'dashboard.html';
                 }, 3000);
 
