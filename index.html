@@ -321,7 +321,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // 👉 Configuration Firebase DIGIYLYFE ECOSYSTEM (même projet que le HUB / CORE)
+        // 👉 Configuration Firebase DIGIYLYFE ECOSYSTEM
         const firebaseConfig = {
             apiKey: "AIzaSyBqEQWoE2iC7_rp-u4riilNVHolcP2o0B0",
             authDomain: "digiylyfe-ecosystem.firebaseapp.com",
@@ -329,7 +329,7 @@
             projectId: "digiylyfe-ecosystem",
             storageBucket: "digiylyfe-ecosystem.firebasestorage.app",
             messagingSenderId: "1007962643384",
-            appId: "1:1007962643384:web:20d26881e87f0dc37d0d" // mets ici exactement celui de ta console si besoin
+            appId: "1:1007962643384:web:20d26881e87f0dc37d0d"
         };
 
         let auth, db, rtdb;
@@ -349,7 +349,7 @@
                 db = firebase.firestore();
                 rtdb = firebase.database();
 
-                statusDiv.textContent = '✅ Prêt à créer votre compte !';
+                statusDiv.textContent = '✅ Prêt à créer votre compte DIGIYLYFE';
                 statusDiv.className = 'firebase-status connected';
                 
                 submitBtn.disabled = false;
@@ -405,7 +405,7 @@
             try {
                 console.log('🚀 Création compte pour:', email);
 
-                // 1. Créer le compte Auth (projet digiylyfe-ecosystem)
+                // 1. Créer le compte Auth
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const uid = userCredential.user.uid;
                 console.log('✅ Auth créé:', uid);
@@ -413,7 +413,7 @@
                 const now = firebase.firestore.FieldValue.serverTimestamp();
                 const nowTs = Date.now();
 
-                // 2. Créer le document Firestore /users
+                // 2. Firestore /users
                 await db.collection('users').doc(uid).set({
                     uid: uid,
                     nom: nom,
@@ -436,7 +436,7 @@
                 });
                 console.log('✅ Document Firestore users créé');
 
-                // 3. Créer le document client Firestore
+                // 3. Firestore /clients
                 await db.collection('clients').doc(uid).set({
                     userId: uid,
                     status: 'active',
@@ -446,7 +446,7 @@
                 });
                 console.log('✅ Document Firestore clients créé');
 
-                // 4. Miroir dans la Realtime Database pour DIGIY CORE
+                // 4. Miroir Realtime Database
                 await rtdb.ref('core/users/' + uid).set({
                     uid: uid,
                     nom: nom,
@@ -461,26 +461,26 @@
                 });
                 console.log('✅ Miroir RTDB core/users créé');
 
-                // 5. Email de vérification
-                await userCredential.user.sendEmailVerification();
-                console.log('✅ Email de vérification envoyé');
+                // 5. Email de vérification (on ne bloque plus l'affichage sur ça)
+                userCredential.user.sendEmailVerification()
+                    .then(() => console.log('✅ Email de vérification envoyé'))
+                    .catch(err => console.warn('⚠️ Erreur envoi email vérification:', err));
 
                 // Succès !
                 statusDiv.className = 'status success show';
                 statusDiv.innerHTML = `
                     <strong>🎉 Bienvenue dans DIGIYLYFE !</strong><br>
-                    <small>Un email de vérification a été envoyé à ${email}</small>
+                    <small>Un email de vérification a été envoyé à <strong>${email}</strong>.<br>
+                    Vous allez être redirigé vers DIGIYLYFE.</small>
                 `;
 
-                submitBtn.textContent = '✅ Compte créé avec succès !';
+                submitBtn.textContent = '✅ Compte créé avec succès';
                 submitBtn.style.background = '#10b981';
 
-                // Redirection après 3 secondes (adapter vers ton HUB si tu veux)
+                // Redirection après 2,5 secondes vers ton écosystème (remplace l’URL si besoin)
                 setTimeout(() => {
-                    // Exemple : rediriger vers ton DIGIY HUB
-                    // window.location.href = "https://beauville.github.io/TON-HUB-ICI/";
-                    window.location.href = 'dashboard.html';
-                }, 3000);
+                    window.location.href = 'https://digiylyfe.com/';
+                }, 2500);
 
             } catch (error) {
                 console.error('❌ Erreur:', error);
