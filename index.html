@@ -167,17 +167,28 @@
             border-top: 2px solid #f0f0f0;
         }
 
-        .feature {
+        /* Cartes modules cliquables */
+        .feature-link {
             display: flex;
             align-items: center;
             margin-bottom: 15px;
-            padding: 10px;
+            padding: 10px 12px;
             background: #f8f9fa;
-            border-radius: 8px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            border: 1px solid #e5e7eb;
+        }
+
+        .feature-link:hover {
+            background: #eef2ff;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102,126,234,0.25);
         }
 
         .feature-icon {
-            font-size: 1.8em;
+            font-size: 1.9em;
             margin-right: 15px;
         }
 
@@ -189,11 +200,22 @@
             font-weight: bold;
             color: #1a1a2e;
             margin-bottom: 3px;
+            font-size: 0.98em;
         }
 
         .feature-desc {
             font-size: 0.85em;
             color: #666;
+        }
+
+        .feature-pill {
+            font-size: 0.75em;
+            font-weight: 700;
+            color: #4b5563;
+            background: #e5e7eb;
+            border-radius: 999px;
+            padding: 4px 10px;
+            margin-left: 8px;
         }
 
         .footer {
@@ -274,38 +296,51 @@
 
         <div id="status" class="status"></div>
 
+        <!-- PORTES DIRECTES VERS LES MODULES -->
         <div class="features">
-            <div class="feature">
+            <a class="feature-link" href="https://beauville.github.io/digiy-driver-client/" target="_blank" rel="noopener">
                 <div class="feature-icon">🚗</div>
                 <div class="feature-text">
-                    <div class="feature-title">DIGIY DRIVER</div>
+                    <div class="feature-title">
+                        DIGIY DRIVER
+                        <span class="feature-pill">Transport</span>
+                    </div>
                     <div class="feature-desc">Transport 0% commission</div>
                 </div>
-            </div>
+            </a>
 
-            <div class="feature">
+            <a class="feature-link" href="https://digiylyfe.com/vitrine-resto/" target="_blank" rel="noopener">
                 <div class="feature-icon">🍽️</div>
                 <div class="feature-text">
-                    <div class="feature-title">DIGIY RESTO</div>
+                    <div class="feature-title">
+                        DIGIY RESTO
+                        <span class="feature-pill">Restaurant</span>
+                    </div>
                     <div class="feature-desc">Gestion restaurant complète</div>
                 </div>
-            </div>
+            </a>
 
-            <div class="feature">
+            <a class="feature-link" href="https://beauville.github.io/chez-baptiste-digiy-loc/" target="_blank" rel="noopener">
                 <div class="feature-icon">🏠</div>
                 <div class="feature-text">
-                    <div class="feature-title">DIGIY LOC</div>
+                    <div class="feature-title">
+                        DIGIY LOC
+                        <span class="feature-pill">Hébergement</span>
+                    </div>
                     <div class="feature-desc">Location sans commission</div>
                 </div>
-            </div>
+            </a>
 
-            <div class="feature">
+            <a class="feature-link" href="https://beauville.github.io/digiy-market/" target="_blank" rel="noopener">
                 <div class="feature-icon">🏪</div>
                 <div class="feature-text">
-                    <div class="feature-title">DIGIY MARKET</div>
+                    <div class="feature-title">
+                        DIGIY MARKET
+                        <span class="feature-pill">Marketplace</span>
+                    </div>
                     <div class="feature-desc">Marketplace 0% frais</div>
                 </div>
-            </div>
+            </a>
         </div>
 
         <div class="footer">
@@ -461,7 +496,7 @@
                 });
                 console.log('✅ Miroir RTDB core/users créé');
 
-                // 5. Email de vérification (on ne bloque plus l'affichage sur ça)
+                // 5. Email de vérification (non bloquant)
                 userCredential.user.sendEmailVerification()
                     .then(() => console.log('✅ Email de vérification envoyé'))
                     .catch(err => console.warn('⚠️ Erreur envoi email vérification:', err));
@@ -477,7 +512,6 @@
                 submitBtn.textContent = '✅ Compte créé avec succès';
                 submitBtn.style.background = '#10b981';
 
-                // Redirection après 2,5 secondes vers ton écosystème (remplace l’URL si besoin)
                 setTimeout(() => {
                     window.location.href = 'https://digiylyfe.com/';
                 }, 2500);
